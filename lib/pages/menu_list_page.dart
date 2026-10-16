@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/app_image.dart';
 
 class MenuListPage extends StatelessWidget {
   const MenuListPage({super.key});
@@ -62,8 +63,8 @@ class MenuListPage extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             _buildGreeting(context),
-            _buildCategoryChips(),
-            _buildPromoBanner(),
+            _buildCategoryChips(context),
+            _buildPromoBanner(context),
             _buildSectionHeader(context),
             ..._menus.map((m) => _buildMenuCard(context, m)),
             const SizedBox(height: 88),
@@ -75,69 +76,75 @@ class MenuListPage extends StatelessWidget {
   }
 
   Widget _buildGreeting(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Halo, selamat datang! \u{1F44B}', style: AppText.headlineLgMobile),
-                  SizedBox(height: 2),
-                  Text('Mau makan apa hari ini?', style: AppText.bodyMd),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Halo, selamat datang! \u{1F44B}',
+                        style: AppText.headlineLgMobile.copyWith(color: c.onSurface)),
+                    const SizedBox(height: 2),
+                    Text('Mau makan apa hari ini?',
+                        style: AppText.bodyMd.copyWith(color: c.onVariant)),
+                  ],
+                ),
               ),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.secondaryContainer.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle)),
-                        const SizedBox(width: 6),
-                        Text('Buka', style: AppText.labelSm.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  InkWell(
-                    onTap: () => Navigator.pushNamed(context, '/profile'),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: c.secondaryContainer.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(width: 8, height: 8, decoration: BoxDecoration(color: c.primary, shape: BoxShape.circle)),
+                    const SizedBox(width: 6),
+                    Text('Buka', style: AppText.labelSm.copyWith(color: c.secondary, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Semantics(
+                label: 'Buka profil',
+                button: true,
+                child: InkWell(
+                  onTap: () => Navigator.pushNamed(context, '/profile'),
+                  borderRadius: BorderRadius.circular(999),
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(999),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(999),
-                      child: Image.network(
-                        'https://lh3.googleusercontent.com/aida-public/AB6AXuDiC9DdRg10VpldNjdx-8CjtWzcOL3fP1e5to_UL2_mdDLJXPW0Zdsk89nZnZHPBzA3kLi1QLw-XdTJEVWD5SDQhM325izjWXVWW3PHdppyXQ-jNKU0XybqcEQYvyVeuWey7pmKIL-cSE_CY0yjWwpB-KJQbPBsZRxULCrLgVRi8xIEjDLSIICdakyrHVoPfb-kmLHRkNcoMWWFWgOltFFN4Sd2gYZDU6H6CIBe26Q',
-                        width: 36, height: 36, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const CircleAvatar(radius: 18, child: Icon(Icons.person)),
-                      ),
+                    child: const AppImage(
+                      'https://lh3.googleusercontent.com/aida-public/AB6AXuDiC9DdRg10VpldNjdx-8CjtWzcOL3fP1e5to_UL2_mdDLJXPW0Zdsk89nZnZHPBzA3kLi1QLw-XdTJEVWD5SDQhM325izjWXVWW3PHdppyXQ-jNKU0XybqcEQYvyVeuWey7pmKIL-cSE_CY0yjWwpB-KJQbPBsZRxULCrLgVRi8xIEjDLSIICdakyrHVoPfb-kmLHRkNcoMWWFWgOltFFN4Sd2gYZDU6H6CIBe26Q',
+                      width: 36, height: 36, semanticLabel: 'Foto profil',
                     ),
                   ),
-                ],
+                ),
               ),
             ],
           ),
           const SizedBox(height: 10),
           Container(
-            decoration: BoxDecoration(color: AppColors.surfaceLow, borderRadius: BorderRadius.circular(999)),
+            decoration: BoxDecoration(color: c.surfaceLow, borderRadius: BorderRadius.circular(999)),
             child: Row(
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 16, right: 8),
-                  child: Icon(Icons.search, size: 20, color: AppColors.onVariant),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 8),
+                  child: Icon(Icons.search, size: 20, color: c.onVariant),
                 ),
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Cari nasi goreng, ayam geprek, es teh...',
-                      hintStyle: AppText.bodyMd,
+                      hintStyle: AppText.bodyMd.copyWith(color: c.onVariant),
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -146,11 +153,15 @@ class MenuListPage extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(color: AppColors.surfaceContainer, shape: BoxShape.circle),
-                    child: const Icon(Icons.tune, size: 18, color: AppColors.onVariant),
+                  child: Semantics(
+                    label: 'Filter pencarian',
+                    button: true,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(color: c.surfaceContainer, shape: BoxShape.circle),
+                      child: Icon(Icons.tune, size: 18, color: c.onVariant),
+                    ),
                   ),
                 ),
               ],
@@ -161,7 +172,8 @@ class MenuListPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryChips() {
+  Widget _buildCategoryChips(BuildContext context) {
+    final c = context.palette;
     const cats = [
       ['lunch_dining', 'Makanan'],
       ['local_cafe', 'Minuman'],
@@ -176,52 +188,49 @@ class MenuListPage extends StatelessWidget {
       'bento': Icons.bento,
       'percent': Icons.percent,
     };
-    return SizedBox(
-      height: 52,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: cats.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, i) {
-          final active = i == 0;
-          final promo = i == cats.length - 1;
-          final Color bg = active
-              ? AppColors.primaryContainer
-              : promo
-                  ? AppColors.tertiaryFixed
-                  : AppColors.surfaceLowest;
-          final Color fg = active
-              ? Colors.white
-              : promo
-                  ? AppColors.onTertiaryFixedVar
-                  : AppColors.onVariant;
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
-            child: Row(
-              children: [
-                Icon(icons[cats[i][0]], size: 18, color: fg),
-                const SizedBox(width: 6),
-                Text(cats[i][1], style: AppText.labelMd.copyWith(color: fg)),
-              ],
-            ),
-          );
-        },
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          for (var i = 0; i < cats.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Builder(builder: (_) {
+              final active = i == 0;
+              final promo = i == cats.length - 1;
+              return FilterChip(
+                avatar: Icon(icons[cats[i][0]], size: 18,
+                    color: active ? Colors.white : (promo ? c.onTertiaryFixedVar : c.onVariant)),
+                label: Text(cats[i][1], style: AppText.labelMd),
+                showCheckmark: false,
+                selected: active,
+                onSelected: (val) => showSnack(context, 'Kategori ${cats[i][1]} dipilih'),
+                backgroundColor: promo ? c.tertiaryFixed : c.surfaceLowest,
+                selectedColor: c.primaryContainer,
+                side: BorderSide.none,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                labelStyle: AppText.labelMd.copyWith(
+                    color: active ? Colors.white : (promo ? c.onTertiaryFixedVar : c.onVariant)),
+              );
+            }),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildPromoBanner() {
+  Widget _buildPromoBanner(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [AppColors.primaryContainer, AppColors.secondary]),
+          gradient: LinearGradient(colors: [c.primaryContainer, c.secondary]),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Column(
@@ -238,8 +247,12 @@ class MenuListPage extends StatelessWidget {
                       children: [
                         const Icon(Icons.local_fire_department, size: 14, color: Colors.white),
                         const SizedBox(width: 4),
-                        Text('MAKAN HEMAT HARI INI',
-                            style: AppText.labelSm.copyWith(color: Colors.white)),
+                        Flexible(
+                          child: Text('MAKAN HEMAT HARI INI',
+                              style: AppText.labelSm.copyWith(color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                        ),
                       ],
                     ),
                   ),
@@ -248,10 +261,11 @@ class MenuListPage extends StatelessWidget {
                       style: AppText.headlineSm.copyWith(color: Colors.white)),
                   const SizedBox(height: 2),
                   Text('Klaim kupon langsung di kasir kantin',
-                      style: AppText.bodySm.copyWith(color: const Color(0xFFCBFFC2))),
+                      style: AppText.bodySm.copyWith(color: AppColors.mint)),
                 ],
               ),
             ),
+            const SizedBox(width: 12),
             Container(
               width: 64,
               height: 64,
@@ -268,29 +282,46 @@ class MenuListPage extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              const Text('Menu Hari Ini', style: AppText.headlineMd),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(color: AppColors.secondaryContainer, borderRadius: BorderRadius.circular(999)),
-                child: Text('Terpopuler', style: AppText.labelSm.copyWith(color: AppColors.secondary)),
-              ),
-            ],
-          ),
-          GestureDetector(
-            onTap: () {},
+          Expanded(
             child: Row(
               children: [
-                Text('Lihat Semua', style: AppText.labelMd.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                const Icon(Icons.chevron_right, size: 16, color: AppColors.primary),
+                Flexible(
+                  child: Text('Menu Hari Ini',
+                      style: AppText.headlineMd.copyWith(color: c.onSurface),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(color: c.secondaryContainer, borderRadius: BorderRadius.circular(999)),
+                  child: Text('Terpopuler', style: AppText.labelSm.copyWith(color: c.secondary), maxLines: 1),
+                ),
               ],
+            ),
+          ),
+          Semantics(
+            button: true,
+            child: InkWell(
+              onTap: () => showSnack(context, 'Menampilkan semua menu'),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Lihat Semua',
+                        style: AppText.labelMd.copyWith(color: c.primary, fontWeight: FontWeight.bold),
+                        maxLines: 1),
+                    Icon(Icons.chevron_right, size: 16, color: c.primary),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -299,19 +330,20 @@ class MenuListPage extends StatelessWidget {
   }
 
   Widget _buildMenuCard(BuildContext context, Map<String, String> m) {
+    final c = context.palette;
     final Color tagColor;
     switch (m['tagColor']) {
       case 'error':
-        tagColor = AppColors.error;
+        tagColor = c.error;
         break;
       case 'secondary':
-        tagColor = AppColors.secondary;
+        tagColor = c.secondary;
         break;
       case 'primary':
-        tagColor = AppColors.primary;
+        tagColor = c.primary;
         break;
       default:
-        tagColor = AppColors.onVariant;
+        tagColor = c.onVariant;
     }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -321,7 +353,7 @@ class MenuListPage extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.surfaceLowest,
+            color: c.surfaceLowest,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)],
           ),
@@ -332,8 +364,7 @@ class MenuListPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: Stack(
                   children: [
-                    Image.network(m['img']!, width: 80, height: 80, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(width: 80, height: 80, color: AppColors.surfaceContainer)),
+                    AppImage(m['img']!, width: 80, height: 80, semanticLabel: m['name']),
                     Positioned(
                       left: 4,
                       bottom: 4,
@@ -341,10 +372,11 @@ class MenuListPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.9), borderRadius: BorderRadius.circular(4)),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.star, size: 10, color: AppColors.tertiary),
+                            const Icon(Icons.star, size: 10, color: Color(0xFF9C6000)),
                             const SizedBox(width: 2),
-                            Text(m['rating']!, style: AppText.labelSm.copyWith(fontSize: 9, color: AppColors.tertiary)),
+                            Text(m['rating']!, style: AppText.labelSm.copyWith(fontSize: 9, color: const Color(0xFF9C6000))),
                           ],
                         ),
                       ),
@@ -357,31 +389,46 @@ class MenuListPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(m['name']!, style: AppText.headlineSm, overflow: TextOverflow.ellipsis, maxLines: 1),
+                    Text(m['name']!, style: AppText.headlineSm.copyWith(color: c.onSurface), overflow: TextOverflow.ellipsis, maxLines: 1),
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        const Icon(Icons.schedule, size: 13, color: AppColors.onVariant),
+                        Icon(Icons.schedule, size: 13, color: c.onVariant),
                         const SizedBox(width: 4),
-                        Text(m['time']!, style: AppText.bodySm),
-                        const Padding(padding: EdgeInsets.symmetric(horizontal: 4), child: Text('\u2022', style: AppText.bodySm)),
+                        Flexible(
+                          child: Text(m['time']!, style: AppText.bodySm.copyWith(color: c.onVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
+                        Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Text('\u2022', style: AppText.bodySm.copyWith(color: c.onVariant))),
                         Flexible(
                           child: Text(m['tag']!,
                               style: AppText.bodySm.copyWith(color: tagColor, fontWeight: FontWeight.w500),
-                              overflow: TextOverflow.ellipsis),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(m['price']!, style: AppText.headlineSm.copyWith(fontWeight: FontWeight.bold)),
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: const BoxDecoration(color: AppColors.primaryContainer, shape: BoxShape.circle),
-                          child: const Icon(Icons.add, size: 20, color: Colors.white),
+                        Expanded(
+                          child: Text(m['price']!,
+                              style: AppText.headlineSm.copyWith(color: c.onSurface, fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                        Semantics(
+                          label: 'Tambah ${m['name']}',
+                          button: true,
+                          child: InkWell(
+                            onTap: () => showSnack(context, 'Ditambahkan ke keranjang: ${m['name']}'),
+                            customBorder: const CircleBorder(),
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(color: c.primaryContainer, shape: BoxShape.circle),
+                              child: const Icon(Icons.add, size: 20, color: Colors.white),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -396,22 +443,24 @@ class MenuListPage extends StatelessWidget {
   }
 
   Widget _buildBottomNav(BuildContext context, {required String active}) {
+    final c = context.palette;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.95),
+        color: c.surface.withValues(alpha: 0.95),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, -4))],
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(Icons.restaurant, 'Home', active == 'home', () {}),
-              _navItem(Icons.local_mall, 'Keranjang', active == 'keranjang',
-                  () => Navigator.pushNamed(context, '/pesan'), badge: '3'),
-              _navItem(Icons.receipt_long, 'Riwayat', active == 'riwayat', () {}),
+              Expanded(child: _navItem(context, Icons.restaurant, 'Home', active == 'home',
+                  () => showSnack(context, 'Anda sudah di halaman Home'))),
+              Expanded(child: _navItem(context, Icons.local_mall, 'Keranjang', active == 'keranjang',
+                  () => Navigator.pushNamed(context, '/pesan'), badge: '3')),
+              Expanded(child: _navItem(context, Icons.receipt_long, 'Riwayat', active == 'riwayat',
+                  () => showSnack(context, 'Riwayat pesanan belum tersedia'))),
             ],
           ),
         ),
@@ -419,39 +468,50 @@ class MenuListPage extends StatelessWidget {
     );
   }
 
-  Widget _navItem(IconData icon, String label, bool active, VoidCallback onTap, {String? badge}) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 72,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(icon, size: 24, color: active ? AppColors.primaryContainer : AppColors.onVariant),
-                if (badge != null)
-                  Positioned(
-                    right: -6,
-                    top: -4,
-                    child: Container(
-                      width: 16,
-                      height: 16,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(color: AppColors.primaryContainer, shape: BoxShape.circle),
-                      child: Text(badge, style: AppText.labelSm.copyWith(fontSize: 10, color: Colors.white)),
+void showSnack(BuildContext context, String msg) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+}
+
+  Widget _navItem(BuildContext context, IconData icon, String label, bool active, VoidCallback onTap, {String? badge}) {
+    final c = context.palette;
+    return Semantics(
+      label: label,
+      button: true,
+      selected: active,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(icon, size: 24, color: active ? c.primaryContainer : c.onVariant),
+                  if (badge != null)
+                    Positioned(
+                      right: -6,
+                      top: -4,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: c.primaryContainer, shape: BoxShape.circle),
+                        child: Text(badge, style: AppText.labelSm.copyWith(fontSize: 10, color: Colors.white)),
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(label,
-                style: AppText.labelSm.copyWith(
-                    color: active ? AppColors.primaryContainer : AppColors.onVariant,
-                    fontWeight: active ? FontWeight.bold : FontWeight.w400)),
-          ],
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.labelSm.copyWith(
+                      color: active ? c.primaryContainer : c.onVariant,
+                      fontWeight: active ? FontWeight.bold : FontWeight.w400)),
+            ],
+          ),
         ),
       ),
     );

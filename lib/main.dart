@@ -19,6 +19,8 @@ class MyApp extends StatelessWidget {
       title: 'Kantin Bu Sari',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
+      darkTheme: appDarkTheme,
+      themeMode: ThemeMode.system,
       initialRoute: '/',
       routes: {
         '/': (context) => const MenuListPage(),

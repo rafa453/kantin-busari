@@ -1,25 +1,38 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_image.dart';
 
-class OrderPage extends StatelessWidget {
+class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
 
   @override
+  State<OrderPage> createState() => _OrderPageState();
+}
+
+class _OrderPageState extends State<OrderPage> {
+  bool _dineIn = true;
+
+  void _snack(BuildContext context, String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final c = context.palette;
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: c.surface,
       body: SafeArea(
         bottom: false,
         child: ListView(
           padding: const EdgeInsets.only(bottom: 120),
           children: [
             _topMeta(context),
-            _modeSwitch(),
-            _cartItems(),
-            _kitchenNote(),
-            _moreItemsCard(),
-            _paymentSummary(),
-            _freshGuarantee(),
+            _modeSwitch(context),
+            _cartItems(context),
+            _kitchenNote(context),
+            _moreItemsCard(context),
+            _paymentSummary(context),
+            _freshGuarantee(context),
             _checkoutButton(context),
           ],
         ),
@@ -29,36 +42,46 @@ class OrderPage extends StatelessWidget {
   }
 
   Widget _topMeta(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
+          Semantics(
+            label: 'Kembali',
+            button: true,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: c.onSurface),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               onPressed: () => Navigator.pop(context),
             ),
-            const SizedBox(width: 8),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Keranjang Pesanan', style: AppText.headlineMd),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Keranjang Pesanan', style: AppText.headlineMd.copyWith(color: c.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
               Row(children: [
-                const Icon(Icons.storefront, size: 14, color: AppColors.primary),
+                Icon(Icons.storefront, size: 14, color: c.primary),
                 const SizedBox(width: 4),
-                Text('Kantin Bu Sari \u2022 ', style: AppText.labelMd.copyWith(color: AppColors.onVariant)),
-                Text('Meja 04', style: AppText.labelMd.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
+                Flexible(
+                  child: Text('Kantin Bu Sari \u2022 ',
+                      style: AppText.labelMd.copyWith(color: c.onVariant),
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                ),
+                Text('Meja 04', style: AppText.labelMd.copyWith(color: c.secondary, fontWeight: FontWeight.bold)),
               ]),
             ]),
-          ]),
+          ),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: AppColors.secondaryContainer, borderRadius: BorderRadius.circular(999)),
-            child: Row(children: [
-              Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle)),
+            decoration: BoxDecoration(color: c.secondaryContainer, borderRadius: BorderRadius.circular(999)),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Container(width: 6, height: 6, decoration: BoxDecoration(color: c.primary, shape: BoxShape.circle)),
               const SizedBox(width: 6),
-              Text('3 Menu Dipilih', style: AppText.labelSm.copyWith(color: AppColors.secondary)),
+              Text('3 Menu Dipilih', style: AppText.labelSm.copyWith(color: c.secondary), maxLines: 1),
             ]),
           ),
         ],
@@ -66,40 +89,30 @@ class OrderPage extends StatelessWidget {
     );
   }
 
-  Widget _modeSwitch() {
+  Widget _modeSwitch(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(color: AppColors.surfaceContainer, borderRadius: BorderRadius.circular(999)),
-        child: Row(children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(color: AppColors.surfaceLowest, borderRadius: BorderRadius.circular(999), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]),
-              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                const Icon(Icons.table_restaurant, size: 16, color: AppColors.primary),
-                const SizedBox(width: 6),
-                Text('Makan di Tempat', style: AppText.labelMd.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-              ]),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                const Icon(Icons.shopping_bag, size: 16, color: AppColors.onVariant),
-                const SizedBox(width: 6),
-                Text('Bungkus Pulang', style: AppText.labelMd.copyWith(color: AppColors.onVariant)),
-              ]),
-            ),
-          ),
-        ]),
+      child: SegmentedButton<bool>(
+        segments: [
+          ButtonSegment(value: true, label: Text('Makan di Tempat', style: AppText.labelMd), icon: Icon(Icons.table_restaurant, size: 16, color: c.primary)),
+          ButtonSegment(value: false, label: Text('Bungkus Pulang', style: AppText.labelMd), icon: Icon(Icons.shopping_bag, size: 16, color: c.onVariant)),
+        ],
+        selected: {_dineIn},
+        onSelectionChanged: (Set<bool> v) {
+          setState(() => _dineIn = v.first);
+          _snack(context, 'Mode: ${v.first ? "Makan di Tempat" : "Bungkus Pulang"}');
+        },
+        style: ButtonStyle(
+          side: WidgetStateProperty.all(BorderSide(color: c.surfaceContainer)),
+          backgroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? c.surfaceLowest : c.surfaceContainer),
+        ),
       ),
     );
   }
 
-  Widget _cartItems() {
+  Widget _cartItems(BuildContext context) {
+    final c = context.palette;
     final items = [
       {
         'name': 'Ayam Geprek Sambal Korek',
@@ -134,45 +147,61 @@ class OrderPage extends StatelessWidget {
           return Container(
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: AppColors.surfaceLowest, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)]),
+            decoration: BoxDecoration(color: c.surfaceLowest, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)]),
             child: Column(children: [
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(it['img']!, width: 72, height: 72, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(width: 72, height: 72, color: AppColors.surfaceContainer)),
+                  child: AppImage(it['img']!, width: 72, height: 72, semanticLabel: it['name'] as String),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      Expanded(child: Text(it['name']!, style: AppText.headlineSm.copyWith(fontSize: 14), overflow: TextOverflow.ellipsis)),
-                      const Icon(Icons.close, size: 16, color: AppColors.onVariant),
+                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Expanded(child: Text(it['name']!, style: AppText.headlineSm.copyWith(fontSize: 14, color: c.onSurface), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                      Semantics(
+                        label: 'Hapus ${it['name']}',
+                        button: true,
+                        child: InkWell(
+                          onTap: () => _snack(context, '${it['name']} dihapus'),
+                          customBorder: const CircleBorder(),
+                          child: Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: Icon(Icons.close, size: 16, color: c.onVariant),
+                          ),
+                        ),
+                      ),
                     ]),
                     const SizedBox(height: 2),
-                    Text(it['sub']!, style: AppText.bodySm),
+                    Text(it['sub']!, style: AppText.bodySm.copyWith(color: c.onVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 4),
-                    Text(it['price']!, style: AppText.labelLg.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    Text(it['price']!, style: AppText.labelLg.copyWith(color: c.primary, fontWeight: FontWeight.bold)),
                   ]),
                 ),
               ]),
               const SizedBox(height: 8),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: AppColors.surfaceLow, borderRadius: BorderRadius.circular(6)),
-                  child: Row(children: [
-                    const Icon(Icons.edit_note, size: 14, color: AppColors.tertiary),
-                    const SizedBox(width: 4),
-                    Text(it['note']!, style: AppText.bodySm.copyWith(fontStyle: FontStyle.italic)),
-                  ]),
+              Row(children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: c.surfaceLow, borderRadius: BorderRadius.circular(6)),
+                    child: Row(children: [
+                      Icon(Icons.edit_note, size: 14, color: c.tertiary),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(it['note']!, style: AppText.bodySm.copyWith(color: c.onVariant, fontStyle: FontStyle.italic), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
+                    ]),
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(color: AppColors.surfaceContainer, borderRadius: BorderRadius.circular(999)),
-                  child: Row(children: [
-                    _stepperBtn(Icons.remove, isAdd: false),
-                    Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(it['qty']!, style: AppText.labelMd.copyWith(fontWeight: FontWeight.bold))),
-                    _stepperBtn(Icons.add, isAdd: true),
+                  decoration: BoxDecoration(color: c.surfaceContainer, borderRadius: BorderRadius.circular(999)),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    _stepperBtn(context, Icons.remove, 'Kurangi ${it['name']}', isAdd: false, onTap: () => _snack(context, 'Jumlah dikurangi')),
+                    Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(it['qty']!, style: AppText.labelMd.copyWith(color: c.onSurface, fontWeight: FontWeight.bold))),
+                    _stepperBtn(context, Icons.add, 'Tambah ${it['name']}', isAdd: true, onTap: () => _snack(context, 'Jumlah ditambah')),
                   ]),
                 ),
               ]),
@@ -183,35 +212,48 @@ class OrderPage extends StatelessWidget {
     );
   }
 
-  Widget _stepperBtn(IconData icon, {required bool isAdd}) {
-    return Container(
-      width: 24, height: 24,
-      decoration: BoxDecoration(color: isAdd ? AppColors.primaryContainer : AppColors.surfaceLowest, shape: BoxShape.circle),
-      child: Icon(icon, size: 14, color: isAdd ? Colors.white : AppColors.primary),
+  Widget _stepperBtn(BuildContext context, IconData icon, String label, {required bool isAdd, required VoidCallback onTap}) {
+    final c = context.palette;
+    return Semantics(
+      label: label,
+      button: true,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 24, height: 24,
+          decoration: BoxDecoration(color: isAdd ? c.primaryContainer : c.surfaceLowest, shape: BoxShape.circle),
+          child: Icon(icon, size: 14, color: isAdd ? Colors.white : c.primary),
+        ),
+      ),
     );
   }
 
-  Widget _kitchenNote() {
+  Widget _kitchenNote(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: AppColors.surfaceLowest, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: c.surfaceLowest, borderRadius: BorderRadius.circular(12)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Row(children: [
-              const Icon(Icons.edit, size: 16, color: AppColors.primary),
-              const SizedBox(width: 6),
-              Text('Catatan untuk Dapur Bu Sari', style: AppText.labelMd.copyWith(fontWeight: FontWeight.w600)),
-            ]),
-            Text('Opsional', style: AppText.bodySm),
+          Row(children: [
+            Icon(Icons.edit, size: 16, color: c.primary),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text('Catatan untuk Dapur Bu Sari',
+                  style: AppText.labelMd.copyWith(color: c.onSurface, fontWeight: FontWeight.w600),
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+            const SizedBox(width: 8),
+            Text('Opsional', style: AppText.bodySm.copyWith(color: c.onVariant)),
           ]),
           const SizedBox(height: 8),
           TextField(
             decoration: InputDecoration(
               hintText: 'Contoh: Jangan terlalu pedas, kuah dipisah...',
-              hintStyle: AppText.bodyMd,
-              filled: true, fillColor: AppColors.surfaceLow,
+              hintStyle: AppText.bodyMd.copyWith(color: c.onVariant),
+              filled: true, fillColor: c.surfaceLow,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
@@ -221,102 +263,120 @@ class OrderPage extends StatelessWidget {
     );
   }
 
-  Widget _moreItemsCard() {
+  Widget _moreItemsCard(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: AppColors.secondaryContainer.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: c.secondaryContainer.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(12)),
         child: Row(children: [
           Container(
             width: 36, height: 36,
-            decoration: const BoxDecoration(color: AppColors.secondaryContainer, shape: BoxShape.circle),
-            child: const Icon(Icons.add_circle, size: 20, color: AppColors.secondary),
+            decoration: BoxDecoration(color: c.secondaryContainer, shape: BoxShape.circle),
+            child: Icon(Icons.add_circle, size: 20, color: c.secondary),
           ),
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Masih lapar?', style: AppText.labelMd.copyWith(fontWeight: FontWeight.bold)),
-            Text('Cari gorengan atau sambal tambahan', style: AppText.bodySm),
+            Text('Masih lapar?', style: AppText.labelMd.copyWith(color: c.onSurface, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text('Cari gorengan atau sambal tambahan', style: AppText.bodySm.copyWith(color: c.onVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
           ])),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: AppColors.surfaceLowest, borderRadius: BorderRadius.circular(999)),
-            child: Text('+ Tambah', style: AppText.labelSm.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+          const SizedBox(width: 8),
+          Semantics(
+            button: true,
+            child: InkWell(
+              onTap: () => _snack(context, 'Menambah menu lain'),
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(color: c.surfaceLowest, borderRadius: BorderRadius.circular(999)),
+                child: Text('+ Tambah', style: AppText.labelSm.copyWith(color: c.primary, fontWeight: FontWeight.bold), maxLines: 1),
+              ),
+            ),
           ),
         ]),
       ),
     );
   }
 
-  Widget _paymentSummary() {
+  Widget _paymentSummary(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: AppColors.surfaceLowest, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: c.surfaceLowest, borderRadius: BorderRadius.circular(12)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.receipt, size: 18, color: AppColors.secondary),
+            Icon(Icons.receipt, size: 18, color: c.secondary),
             const SizedBox(width: 6),
-            const Text('Ringkasan Pembayaran', style: AppText.headlineSm),
+            Expanded(child: Text('Ringkasan Pembayaran', style: AppText.headlineSm.copyWith(color: c.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis)),
           ]),
           const SizedBox(height: 12),
-          _summaryRow('Subtotal pesanan (5 item)', 'Rp 64.000'),
+          _summaryRow(context, 'Subtotal pesanan (5 item)', 'Rp 64.000'),
           const SizedBox(height: 6),
-          _summaryRow('Biaya kemasan & layanan', 'Rp 2.000'),
+          _summaryRow(context, 'Biaya kemasan & layanan', 'Rp 2.000'),
           const SizedBox(height: 6),
-          _summaryRow('Promo Warung Hemat', '-Rp 0', isPromo: true),
-          const Divider(height: 20),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Total Pembayaran', style: AppText.headlineSm),
-              Text('Termasuk pajak daerah 10%', style: AppText.bodySm),
-            ]),
-            Text('Rp 66.000', style: AppText.headlineLgMobile.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+          _summaryRow(context, 'Promo Warung Hemat', '-Rp 0', isPromo: true),
+          Divider(height: 20, color: c.outlineVariant),
+          Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Total Pembayaran', style: AppText.headlineSm.copyWith(color: c.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text('Termasuk pajak daerah 10%', style: AppText.bodySm.copyWith(color: c.onVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
+            ])),
+            const SizedBox(width: 8),
+            Text('Rp 66.000', style: AppText.headlineLgMobile.copyWith(color: c.primary, fontWeight: FontWeight.bold)),
           ]),
         ]),
       ),
     );
   }
 
-  Widget _summaryRow(String label, String value, {bool isPromo = false}) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(label, style: AppText.bodyMd),
-      Text(value, style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600, color: isPromo ? AppColors.secondary : AppColors.onSurface)),
+  Widget _summaryRow(BuildContext context, String label, String value, {bool isPromo = false}) {
+    final c = context.palette;
+    return Row(children: [
+      Expanded(child: Text(label, style: AppText.bodyMd.copyWith(color: c.onVariant), maxLines: 1, overflow: TextOverflow.ellipsis)),
+      const SizedBox(width: 8),
+      Text(value, style: AppText.bodyMd.copyWith(fontWeight: FontWeight.w600, color: isPromo ? c.secondary : c.onSurface)),
     ]);
   }
 
-  Widget _freshGuarantee() {
+  Widget _freshGuarantee(BuildContext context) {
+    final c = context.palette;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Icon(Icons.verified, size: 14, color: AppColors.primary),
+        Icon(Icons.verified, size: 14, color: c.primary),
         const SizedBox(width: 6),
-        Text('Masakan hangat langsung dari wajan Bu Sari', style: AppText.bodySm),
+        Flexible(child: Text('Masakan hangat langsung dari wajan Bu Sari', style: AppText.bodySm.copyWith(color: c.onVariant), maxLines: 1, overflow: TextOverflow.ellipsis)),
       ]),
     );
   }
 
   Widget _checkoutButton(BuildContext context) {
+    final c = context.palette;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SizedBox(
-        height: 52,
+        height: 56,
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () => _snack(context, 'Pesanan dikirim ke dapur Bu Sari!'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryContainer, foregroundColor: Colors.white,
+            backgroundColor: c.primaryContainer, foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             elevation: 4,
           ),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text('Total (Sudah Siap)', style: AppText.bodySm.copyWith(color: const Color(0xFFCBFFC2), fontSize: 10)),
-              const Text('Rp 66.000', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ]),
-            Row(children: const [
-              Text('Pesan Sekarang', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Row(children: [
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text('Total (Sudah Siap)', style: AppText.bodySm.copyWith(color: AppColors.mint, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis),
+                const Text('Rp 66.000', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white), maxLines: 1),
+              ]),
+            ),
+            const SizedBox(width: 8),
+            Row(mainAxisSize: MainAxisSize.min, children: const [
+              Text('Pesan Sekarang', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white), maxLines: 1),
               SizedBox(width: 6),
               Icon(Icons.arrow_forward, size: 18),
             ]),
@@ -327,44 +387,55 @@ class OrderPage extends StatelessWidget {
   }
 
   Widget _buildBottomNav(BuildContext context) {
+    final c = context.palette;
     return Container(
-      decoration: BoxDecoration(color: AppColors.surface.withValues(alpha: 0.95), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, -4))]),
+      decoration: BoxDecoration(color: c.surface.withValues(alpha: 0.95), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, -4))]),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 64,
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            _navItem(Icons.restaurant, 'Home', false, () => Navigator.popUntil(context, (r) => r.isFirst)),
-            _navItem(Icons.local_mall, 'Keranjang', true, () {}, badge: '3'),
-            _navItem(Icons.receipt_long, 'Riwayat', false, () {}),
-          ]),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            children: [
+              Expanded(child: _navItem(context, Icons.restaurant, 'Home', false, () => Navigator.popUntil(context, (r) => r.isFirst))),
+              Expanded(child: _navItem(context, Icons.local_mall, 'Keranjang', true, () => _snack(context, 'Anda sudah di Keranjang'), badge: '3')),
+              Expanded(child: _navItem(context, Icons.receipt_long, 'Riwayat', false, () => _snack(context, 'Riwayat pesanan belum tersedia'))),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _navItem(IconData icon, String label, bool active, VoidCallback onTap, {String? badge}) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 72,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Stack(clipBehavior: Clip.none, children: [
-            Icon(icon, size: 24, color: active ? AppColors.primaryContainer : AppColors.onVariant),
-            if (badge != null)
-              Positioned(
-                right: -6, top: -4,
-                child: Container(
-                  width: 16, height: 16, alignment: Alignment.center,
-                  decoration: const BoxDecoration(color: AppColors.primaryContainer, shape: BoxShape.circle),
-                  child: Text(badge, style: AppText.labelSm.copyWith(fontSize: 10, color: Colors.white)),
+  Widget _navItem(BuildContext context, IconData icon, String label, bool active, VoidCallback onTap, {String? badge}) {
+    final c = context.palette;
+    return Semantics(
+      label: label,
+      button: true,
+      selected: active,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Stack(clipBehavior: Clip.none, children: [
+              Icon(icon, size: 24, color: active ? c.primaryContainer : c.onVariant),
+              if (badge != null)
+                Positioned(
+                  right: -6, top: -4,
+                  child: Container(
+                    width: 16, height: 16, alignment: Alignment.center,
+                    decoration: BoxDecoration(color: c.primaryContainer, shape: BoxShape.circle),
+                    child: Text(badge, style: AppText.labelSm.copyWith(fontSize: 10, color: Colors.white)),
+                  ),
                 ),
-              ),
+            ]),
+            const SizedBox(height: 4),
+            Text(label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppText.labelSm.copyWith(color: active ? c.primaryContainer : c.onVariant, fontWeight: active ? FontWeight.bold : FontWeight.w400)),
           ]),
-          const SizedBox(height: 4),
-          Text(label, style: AppText.labelSm.copyWith(color: active ? AppColors.primaryContainer : AppColors.onVariant, fontWeight: active ? FontWeight.bold : FontWeight.w400)),
-        ]),
+        ),
       ),
     );
   }
