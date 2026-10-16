@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'pages/menu_list_page.dart';
 import 'pages/menu_detail_page.dart';
 import 'pages/order_page.dart';
+import 'pages/profile_page.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,17 +18,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Kantin Bu Sari',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        useMaterial3: true,
-      ),
-
-      // Best practice: daftarkan semua route di satu tempat
+      theme: appTheme,
       initialRoute: '/',
       routes: {
         '/': (context) => const MenuListPage(),
         '/detail': (context) => const MenuDetailPage(),
         '/pesan': (context) => const OrderPage(),
+        '/profile': (context) => const ProfilePage(),
       },
     );
   }
